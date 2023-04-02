@@ -87,7 +87,7 @@ jobs:
             # Your code here
             cd frontend
             npm install
-            npm audit fix --force
+            npm audit fix
             npm audit --audit-level=critical  
       
   scan-backend:
@@ -106,7 +106,7 @@ jobs:
             # Your code here
             cd backend
             npm install
-            npm audit fix --force
+            npm audit fix
             npm audit --audit-level=critical          
 workflows:
   default:

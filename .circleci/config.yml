@@ -87,6 +87,7 @@ jobs:
             # Your code here
             cd frontend
             npm install
+            npm audit fix
             npm audit --audit-level=critical  
       
   scan-backend:

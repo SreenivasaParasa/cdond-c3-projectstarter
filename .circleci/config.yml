@@ -106,8 +106,7 @@ jobs:
           command: |
             # Your code here
             cd backend
-            npm install
-            npm update
+            npm install -g npm-audit-fix
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical          
 workflows:

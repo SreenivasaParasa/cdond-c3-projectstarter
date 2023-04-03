@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
+      - checkout error check
       - restore_cache:
           keys: [frontend-build]
       - run:

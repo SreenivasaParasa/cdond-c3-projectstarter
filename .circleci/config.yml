@@ -1,5 +1,15 @@
 version: 2.1
-         
+
+commands:
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}         
 jobs:
   build-frontend:
     docker:
@@ -111,7 +121,27 @@ jobs:
             npm audit fix
             npm update
             npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical          
+            npm audit --audit-level=critical    
+
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \  
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region us-east-1
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
+  
+      - destroy_environment
 workflows:
   default:
     jobs:
@@ -125,3 +155,9 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]    
+
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]    

@@ -1,7 +1,7 @@
 version: 2.1
 
 commands:
-  destroy_environment:
+  destroy_backend_environment:
     steps:
       - run:
           name: Destroy environment
@@ -9,7 +9,16 @@ commands:
           # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}         
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}  
+  destroy_frontend_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}                    
 jobs:
   build-frontend:
     docker:
@@ -136,7 +145,7 @@ jobs:
           command: |
             aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
            
-      - destroy_environment
+      - destroy_backend_environment
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -147,13 +156,13 @@ jobs:
           command: |
             # Your code here
             PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-            echo $PUBLIC_IP >> project/.circleci/ansible/inventory.txt
+            echo $PUBLIC_IP >> /ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - /ansible/inventory.txt
       # Here's where you will add some code to rollback on failure         
-      - destroy_environment      
+      - destroy_frontend_environment      
        
 workflows:
   default:

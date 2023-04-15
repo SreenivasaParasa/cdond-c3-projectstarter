@@ -151,7 +151,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txtansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
  
        
 workflows:

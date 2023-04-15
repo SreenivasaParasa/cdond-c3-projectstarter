@@ -140,44 +140,24 @@ jobs:
       # Checkout code from git
       - checkout
       - run: yum install -y tar gzip
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
-           
-      - destroy_backend_environment
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
-              
+    
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-            echo $PUBLIC_IP >> ~/ansible/inventory.txt
+            #PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+            echo "subbayya" >> inventory.txt
+            
       - persist_to_workspace:
           root: ~/
           paths:
-            - ansible/inventory.txt
-
-      # Here's where you will add some code to rollback on failure         
-      - destroy_frontend_environment      
+            - project/.circleci/ansible/inventory.txt
+ 
        
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]    
+      
 
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deploy-infrastructure
+          

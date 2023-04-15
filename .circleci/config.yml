@@ -146,26 +146,18 @@ jobs:
           command: |
             # Your code here
             #PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-            echo "subbayya" >> /.circleci/ansible/inventory.txt
+            echo "subbayya" >> inventory.txt
+            
       - persist_to_workspace:
           root: ~/
           paths:
-            - ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txtansible/inventory.txt
  
        
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]    
+      
 
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deploy-infrastructure
+          

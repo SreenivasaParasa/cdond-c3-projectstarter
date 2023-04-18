@@ -167,7 +167,7 @@ jobs:
   
   configure_infrastructure: 
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     working_directory: ~/project
     steps:
       - checkout
@@ -177,11 +177,11 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            apt-get update
-            apt-get install -y tar gzip 
-            apt-get install -y ansible
-            apt-get install -y python3-pip
-            pip3 install awscli
+            sudo apt-get update
+            sudo apt-get install -y tar gzip 
+            sudo apt-get install -y ansible
+            sudo apt-get install -y python3-pip
+            sudo pip3 install awscli
       - run:
           name: Configure server
           command: |

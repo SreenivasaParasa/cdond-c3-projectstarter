@@ -164,7 +164,27 @@ jobs:
 
       # Here's where you will add some code to rollback on failure         
       - destroy_frontend_environment      
-       
+  
+  configure_infrastructure: 
+    docker:
+      - image: amazon/aws-cli
+    working_directory: ~/project
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["55:1c:a7:2b:b1:11:f6:fd:0f:e6:9f:ee:b4:0c:24:b5"] # You can get this ID in the section where you registered the SSH Key
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            sudo apt-get update && sudo apt-get install -y tar gzip ansible awscli
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+            git remote set-url origin $GITHUB_REPO_URL
+     
 workflows:
   default:
     jobs:
@@ -181,3 +201,5 @@ workflows:
 
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure_infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend,deploy-infrastructure]

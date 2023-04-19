@@ -21,3 +21,5 @@
       apt:
         name: python
         state: present
+  # Get the environment variables from CircleCI and add to the EC2 instance
+    

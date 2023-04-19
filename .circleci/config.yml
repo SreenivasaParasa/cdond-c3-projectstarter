@@ -174,7 +174,7 @@ jobs:
           fingerprints: ["55:1c:a7:2b:b1:11:f6:fd:0f:e6:9f:ee:b4:0c:24:b5"] # You can get this ID in the section where you registered the SSH Key
       - attach_workspace:
           at: ~/
-      - run: cat project/.circleci/ansible/inventory.txt
+      - run: cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -190,6 +190,8 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
             git remote set-url origin $GITHUB_REPO_URL
+      - destroy_frontend_environment 
+      - destroy_backend_environment          
      
 workflows:
   default:

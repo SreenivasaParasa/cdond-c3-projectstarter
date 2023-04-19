@@ -160,13 +160,9 @@ jobs:
           command: |
             # Your code here
             PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-            echo $PUBLIC_IP >> inventory.txt
+            echo $PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
             cat $PUBLIC_IP
-            cat inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
       - run: cat  ~/project/.circleci/ansible/inventory.txt
 
       # Here's where you will add some code to rollback on failure         

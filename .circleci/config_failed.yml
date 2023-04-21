@@ -151,18 +151,19 @@ jobs:
           command: |
             aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
               
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            # Your code here
-            aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output txt >> ~/project/.circleci/ansible/inventory.txt
-            echo $PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
-          
-            cat ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here
+            PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+            echo $PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
+            cat $PUBLIC_IP
+            cat ~/project/.circleci/ansible/inventory.txt
+      - run: cat  ~/project/.circleci/ansible/inventory.txt
 
       # Here's where you will add some code to rollback on failure         
       - destroy_frontend_environment      
@@ -175,20 +176,23 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["55:1c:a7:2b:b1:11:f6:fd:0f:e6:9f:ee:b4:0c:24:b5"] # You can get this ID in the section where you registered the SSH Key
       - attach_workspace:
-          at: /tmp/workspace
+          at: ~/
       - run: cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
             sudo apt-get update
+            sudo apt-get install -y tar gzip 
             sudo apt-get install -y ansible
-            sudo apt-get install awscli
+            sudo apt-get install -y python3-pip
+            sudo pip3 install awscli
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
+            git remote set-url origin $GITHUB_REPO_URL
       - destroy_frontend_environment 
       - destroy_backend_environment          
      

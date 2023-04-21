@@ -1,3 +1,4 @@
+---
 version: 2.1
 
 commands:
@@ -140,73 +141,24 @@ jobs:
       # Checkout code from git
       - checkout
       - run: yum install -y tar gzip
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
-           
-      - destroy_backend_environment
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" --region us-east-1 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
-              
+    
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output txt >> ~/project/.circleci/ansible/inventory.txt
-            echo $PUBLIC_IP >> ~/project/.circleci/ansible/inventory.txt
-          
-            cat ~/project/.circleci/ansible/inventory.txt
+            #PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+            echo "subbayya" >> inventory.txt
+            
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-
-      # Here's where you will add some code to rollback on failure         
-      - destroy_frontend_environment      
-  
-  configure_infrastructure: 
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["55:1c:a7:2b:b1:11:f6:fd:0f:e6:9f:ee:b4:0c:24:b5"] # You can get this ID in the section where you registered the SSH Key
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: cat ~/project/.circleci/ansible/inventory.txt
-      - run:
-          name: Install dependencies
-          command: |
-            # install the dependencies needed for your playbook
-            sudo apt-get update
-            sudo apt-get install -y ansible
-            sudo apt-get install awscli
-      - run:
-          name: Configure server
-          command: |
-            cd .circleci/ansible
-            ansible-playbook -i /tmp/workspace/project/.circleci/ansible/inventory.txt configure-server.yml
-      - destroy_frontend_environment 
-      - destroy_backend_environment          
-     
+ 
+       
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]    
+      
 
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure_infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend,deploy-infrastructure]
+      - deploy-infrastructure
+          

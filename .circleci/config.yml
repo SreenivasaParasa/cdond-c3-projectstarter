@@ -168,7 +168,7 @@ jobs:
   
   configure_infrastructure: 
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/python:3.9
     steps:
       - checkout
       - add_ssh_keys:
@@ -180,9 +180,10 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            sudo apt update
-            sudo apt install ansible -y
-            sudo apt install awscli -y 
+            sudo apt-get update
+            sudo apt-get install -y sensible-utils
+            sudo apt-get install -y python3-pip
+            sudo pip3 install awscli
       - run:
           name: Configure server
           command: |

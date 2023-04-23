@@ -182,7 +182,9 @@ jobs:
             # install the dependencies needed for your playbook
             sudo apt-get update
             sudo apt-get install -y ansible
-            sudo apt-get install -y awscli gzip tar
+            sudo apt-get install -y awscli 
+            sudo apt-get install -y gzip 
+            sudo apt-get install -y tar
       - run:
           name: Configure server
           command: |

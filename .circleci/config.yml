@@ -180,8 +180,7 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            sudo apt-get update && sudo apt-get install -y software-properties-common
-            sudo apt-add-repository universe
+            sudo apt-get update
             sudo apt-get install -y ansible
             sudo apt-get install -y python3-pip
             sudo pip3 install awscli

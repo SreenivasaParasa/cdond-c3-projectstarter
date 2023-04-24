@@ -15,7 +15,7 @@
     - name: "Delay and wait for 600 seconds for target connection to become reachable/usable."
       wait_for_connection:
         timeout: 600
-        no_output_timeout: 15m
+        no_output_timeout: 15
     - name: "install python for Ansible."
     # Your code here
       apt:

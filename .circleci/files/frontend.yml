@@ -12,9 +12,6 @@ Resources:
     Properties:
       BucketName: !Sub "udapeople-${ID}"
       AccessControl: PublicRead
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerEnforced
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
@@ -29,9 +26,6 @@ Resources:
           Principal: '*'
           Action: s3:GetObject
           Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
-        OwnershipControls:
-          Rules:
-            - ObjectOwnership: BucketOwnerEnforced
 Outputs:
   WebsiteURL:
     Value: !GetAtt WebsiteBucket.WebsiteURL

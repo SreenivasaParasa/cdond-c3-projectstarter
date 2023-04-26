@@ -23,7 +23,7 @@ Resources:
         Statement:
         - Sid: PublicReadForGetBucketObjects
           Effect: Allow
-          Principal: arn:aws:s3:::udapeople-parasa1984/*
+          Principal: arn:aws:s3:::udapeople-parasa1984
           Action: s3:GetObject
           Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
 Outputs:

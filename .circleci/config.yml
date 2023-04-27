@@ -179,13 +179,13 @@ jobs:
       - run: 
           name: Install dependencies
           command: |
-            sudo apt-get update
-            sudo apt-get install ansible awscli -y
+            apk add --update ansible
+            pip install awscli
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -vvv -i inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy_frontend_environment 
       - destroy_backend_environment          
      

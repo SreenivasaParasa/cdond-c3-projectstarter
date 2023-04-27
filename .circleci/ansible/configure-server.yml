@@ -16,7 +16,10 @@
       wait_for_connection:
       timeout: 900
     - name: "install python3 for Ansible."
-      raw: apt install python3
+    # Your code here
+      become: true
+        apt install python3
+        apt install python3-pip
   # Get the environment variables from CircleCI and add to the EC2 instance
   environment:
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"  

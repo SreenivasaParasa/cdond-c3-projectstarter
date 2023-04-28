@@ -17,7 +17,6 @@
         timeout: 900
     - name: "install python3 for Ansible."
     # Your code here
-      raw: apt install python3
       apt:
         pkg: 
           - python3

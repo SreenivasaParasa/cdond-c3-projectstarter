@@ -198,14 +198,17 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-   
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y tar gzip curl
+            sudo apt install -y awscli
       - run:
           name: Run migrations
           command: |
             cd backend
             sudo apt update
-            sudo apt install -y tar gzip curl
-            sudo apt install -y awscli
             sudo npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt  

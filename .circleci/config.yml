@@ -192,13 +192,19 @@ jobs:
   run-migrations:
     docker:
        # Docker image here that supports NodeJS
-      - image: circleci/node:13.8.0
+      - image: circleci/node:14.18.1
     steps:
       # Checkout code from git
       - checkout
       - restore_cache:
           keys: [backend-build]
-      
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
           command: |

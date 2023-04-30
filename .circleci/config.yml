@@ -1,6 +1,16 @@
 version: 2.1
 
 commands:
+
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
   destroy_backend_environment:
     steps:
       - run:
@@ -196,21 +206,21 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - install_awscli
       - restore_cache:
           keys: [backend-build]
-      # - run:
-         #  name: Install dependencies
-         #  command: |
-            # sudo apt update
-           #  sudo apt install -y tar gzip curl
-           #  sudo apt install -y awscli
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get upgrade
+            sudo apt-get install -y curl
+            sudo apt-get install -y awscli
       - run:
           name: Run migrations
           command: |
             cd backend
-            sudo apt update
-            sudo apt install -y awscli
-            sudo npm install
+            npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:

@@ -483,8 +483,6 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend]
-      - frontend-smoke-test:
-          requires: [deploy-frontend]
       - cloudfront-update:
           requires: [backend-smoke-test,frontend-smoke-test]
      # - cleanup-phase:

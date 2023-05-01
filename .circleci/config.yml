@@ -202,7 +202,7 @@ jobs:
   run-migrations:
     docker:
        # Docker image here that supports NodeJS
-      - image: circleci/node:13.8.0
+      - image: circleci/node:14.18.1
     steps:
       # Checkout code from git
       - checkout
@@ -212,7 +212,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt-get update --allow-unauthenticated
+            sudo apt-get update
             sudo apt-get upgrade
             sudo apt-get install -y curl
             sudo apt-get install -y awscli

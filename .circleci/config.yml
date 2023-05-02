@@ -217,7 +217,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - install_awscli
       - restore_cache:
           keys: [backend-build]
       - run:

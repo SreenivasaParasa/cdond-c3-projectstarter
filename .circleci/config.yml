@@ -213,7 +213,7 @@ jobs:
   run-migrations:
     docker:
        # Docker image here that supports NodeJS
-      - image: node:16.0-alpine
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
@@ -222,12 +222,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk update && apk upgrade && \
-            apk add --no-cache bash && \
-            apk add --no-cache curl && \
-            apk add --no-cache python3 py3-pip && \
-            pip install --upgrade pip && \
-            pip install awscli --upgrade --user
+            apt-get install sudo
+            sudo apt-get update
+            sudo apt-get upgrade
+            sudo apt-get install -y curl
+            sudo apt-get install -y awscli
       - run:
           name: Run migrations
           command: |

@@ -213,7 +213,7 @@ jobs:
   run-migrations:
     docker:
        # Docker image here that supports NodeJS
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16.19.1
     steps:
       # Checkout code from git
       - checkout
@@ -231,7 +231,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm install --save-dev reflect-metadata@0.1.12 ajv@^6.9.1 winston@2.x.x
+            npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:

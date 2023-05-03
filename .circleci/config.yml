@@ -292,7 +292,6 @@ jobs:
       - image: cimg/base:stable    
     steps:
       - checkout
-      # install_ansible
       - run:
           name: Install Ansible
           command: |

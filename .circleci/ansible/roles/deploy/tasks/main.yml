@@ -1,43 +1,67 @@
 ---
-- name: Create app dir
-  become: yes
+- name: "apt packages update"
+  become: true
+  become_method: sudo
+  apt:
+    update_cache: yes
+
+- name: "Remove dependencies"
+  become: true
+  apt:
+    autoremove: yes
+
+- name: "packages upgrade"
+  become: true
+  apt:
+    upgrade: "yes"
+    
+- name: create directory for backend
+  become: true
   file:
-    path: /home/ubuntu/app
+    path: /home/ubuntu/backend
     state: directory
+    mode: 0755
 
-- name: "Copy backend build folder to EC2"
-  become: yes
-  unarchive:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/app/
-    owner: ubuntu
+- name: "Copying backend zip file"
+  copy:
+    src: "~/artifact.tar.gz"
+    dest: /home/ubuntu/backend
 
-- name: "NPM Install"
-  become: yes
+- name: "Unzip backend files to correct directory"
+  ansible.builtin.unarchive:
+    src: ~/artifact.tar.gz
+    dest: /home/ubuntu/backend
+
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+    
+- name: "Executing node"
   shell: |
-    sudo apt update
-    sudo apt-get install -y npm
-    cd /home/ubuntu/app
+    cd ~/backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- run start
+  register: execute_node_server
 
-- name: Stop and delete already running server
-  ignore_errors: yes
-  shell: |
-    pm2 stop backend
-    pm2 delete backend
+- name: print log
+  debug:
+    msg: "{{ execute_node_server.stdout_lines }}"
 
-- name: "Start backend"
-  become: yes
-  shell: |
-    cd /home/ubuntu/app
-    # npm run start
-    pm2 start npm -- start
-
+- name: "start server"
+  become: true
+  command: pm2 start -f ./main.js
+  args:
+    chdir: /home/ubuntu/backend/dist
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "./src/migrations"
-    TYPEORM_MIGRATIONS: ./src/migrations/*.ts
-    TYPEORM_ENTITIES: "./src/modules/domain/**/*.entity.ts"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
     TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
     TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"

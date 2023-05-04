@@ -1,69 +1,20 @@
----
-- name: "apt packages update"
-  become: true
-  become_method: sudo
-  apt:
-    update_cache: yes
-
-- name: "Remove dependencies"
-  become: true
-  apt:
-    autoremove: yes
-
-- name: "packages upgrade"
-  become: true
-  apt:
-    upgrade: "yes"
-    
-- name: create directory for backend
-  become: true
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-    mode: 0755
-
-- name: "Copying backend zip file"
-  copy:
-    src: "~/artifact.tar.gz"
-    dest: /home/ubuntu/backend
-
-- name: "Unzip backend files to correct directory"
-  ansible.builtin.unarchive:
-    src: ~/artifact.tar.gz
-    dest: /home/ubuntu/backend
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-    
-- name: "Executing node"
+- name: Creates App directory
   shell: |
-    cd ~/backend
+    mkdir -p ~/app
+- name: copying zipped artifact
+  copy:
+    src: ../../artifact.tar.gz
+    dest: ~/app
+
+- name: Install dependencies
+  shell: |
+    cd /home/ubuntu/app
+    tar xf /home/ubuntu/app/artifact.tar.gz
+- name: Start the app
+  shell: |
+    cd /home/ubuntu/app  
     npm install
-    pm2 stop default
-    pm2 start npm -- run start
-  register: execute_node_server
-
-- name: print log
-  debug:
-    msg: "{{ execute_node_server.stdout_lines }}"
-
-- name: "start server"
-  become: true
-  command: pm2 start -f ./main.js
-  args:
-    chdir: /home/ubuntu/backend/dist
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "./migrations"
-    TYPEORM_MIGRATIONS: "./migrations/*.js"
-    TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+    pm2 stop default  
+    pm2 start npm -- start
+    sleep 20
+    echo "Done."

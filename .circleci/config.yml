@@ -486,8 +486,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend]
-      #- cloudfront-update:
-      #    requires: [smoke-test]
-      - cleanup-phase:
+      - cloudfront-update:
           requires: [smoke-test]
-      #    requires: [cloudfront-update]    
+      #- cleanup-phase:
+          #requires: [cloudfront-update]    

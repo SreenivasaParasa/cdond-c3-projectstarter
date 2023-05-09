@@ -149,9 +149,11 @@ jobs:
             # Your code here
             cd backend
             npm install
+            npm audit fix --audit-level=critical --force
             npm audit fix
             npm update
-            npm audit fix
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical    
 
   deploy-infrastructure:
     docker:
@@ -483,6 +485,19 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]    
 
-
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure_infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure_infrastructure]    
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend]
+      - cloudfront-update:
+          requires: [smoke-test]
       #- cleanup-phase:
           #requires: [cloudfront-update]    

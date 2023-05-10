@@ -129,8 +129,8 @@ jobs:
             # Your code here
             cd frontend
             npm install
-            npm update
             npm audit fix
+            npm update
             npm audit
       
   scan-backend:

@@ -131,6 +131,7 @@ jobs:
             npm install
             npm audit fix --force
             npm update
+            npm audit fix
             npm audit
       
   scan-backend:
@@ -151,6 +152,7 @@ jobs:
             npm install
             npm audit fix --force
             npm update
+            npm audit fix
             npm audit
 
   deploy-infrastructure:

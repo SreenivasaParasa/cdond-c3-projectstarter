@@ -129,7 +129,6 @@ jobs:
             # Your code here
             cd frontend
             npm install
-            npm audit fix --force
             npm update
             npm audit fix
             npm audit
@@ -150,9 +149,8 @@ jobs:
             # Your code here
             cd backend
             npm install
-            npm audit fix --force
-            npm update
             npm audit fix
+            npm update
             npm audit
 
   deploy-infrastructure:

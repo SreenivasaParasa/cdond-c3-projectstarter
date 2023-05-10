@@ -127,12 +127,8 @@ jobs:
           name: Scan front-end
           command: |
             # Your code here
-            cd frontend
             npm install
-            npm update
-            npm audit fix
-            npm audit
-      
+            npm audit fix --audit-level=critical --force
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -477,8 +473,8 @@ workflows:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
-     # - scan-frontend:
-     #     requires: [build-frontend]    
+      - scan-frontend:
+         requires: [build-frontend]    
 
 
       #- cleanup-phase:

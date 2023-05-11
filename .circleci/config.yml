@@ -476,20 +476,6 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
          requires: [build-frontend]    
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure_infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure_infrastructure]    
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [deploy-frontend]
-      - smoke-test:
-          requires: [deploy-backend]
-      - cloudfront-update:
-          requires: [smoke-test]
-
+      
       #- cleanup-phase:
       #    requires: [cloudfront-update]    

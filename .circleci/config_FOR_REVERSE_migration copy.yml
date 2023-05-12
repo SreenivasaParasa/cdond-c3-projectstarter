@@ -35,12 +35,11 @@ commands:
           name: Reverting migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure "https://kvdb.io/FEE7JyKAyonGF3qh5wj98X/migration_<<parameters.workflow_id>>" -H "X-Api-Key: ${THISDB_API_KEY}")
-            if (($SUCCESS == 1)); then
+        
               cd backend
               npm install
               npm run migrations:revert
-            fi
+            
   
 jobs:
   build-frontend:
@@ -129,10 +128,7 @@ jobs:
             # Your code here
             cd frontend
             npm install
-            npm update
             npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical  
-      
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -150,11 +146,6 @@ jobs:
             cd backend
             npm install
             npm audit fix --audit-level=critical --force
-            npm audit fix
-            npm update
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical    
-
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -246,9 +237,11 @@ jobs:
               curl --insecure https://kvdb.io/FEE7JyKAyonGF3qh5wj98X/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       
-      - destroy-environment  
+      
       - revert-migrations:
           workflow_id: '${CIRCLE_WORKFLOW_ID:0:7}'
+
+      - destroy-environment     
 
   deploy-frontend:
     # Docker 
@@ -368,16 +361,22 @@ jobs:
       - destroy-environment  
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.16
+       # Docker image here that supports NodeJS. check DB name and environment variables
+      - image: circleci/node:13.8.0
     steps:
+      # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl
-            pip install awscli
+            sudo apt update && sudo apt upgrade
+            sudo apt install curl 
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+   
       - run:
           name: Backend smoke test
           command: |
@@ -389,9 +388,9 @@ jobs:
              export API_URL=http://${BACKEND_PUBLIC_IP}:3030
              if curl -s $API_URL/api/status | grep "ok"
              then
-               exit 0
-             else
                exit 1
+             else
+               exit 0
              fi
       - run:
           name: Smoke test for front end
@@ -400,14 +399,15 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 0
-            else
               return 1
+            else
+              return 0
             fi       
-      #- revert-migrations:
-      #    workflow_id: '${CIRCLE_WORKFLOW_ID:0:7}'
-      
-      # - destroy-environment  
+     
+      - revert-migrations:
+         workflow_id: '${CIRCLE_WORKFLOW_ID:0:7}'
+      - destroy-environment  
+     
 
   cloudfront-update:
     docker:
@@ -483,8 +483,7 @@ workflows:
       - scan-backend:
           requires: [build-backend]
       - scan-frontend:
-          requires: [build-frontend]    
-
+         requires: [build-frontend]    
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure_infrastructure:
@@ -499,5 +498,6 @@ workflows:
           requires: [deploy-backend]
       - cloudfront-update:
           requires: [smoke-test]
+
       #- cleanup-phase:
-          #requires: [cloudfront-update]    
+      #    requires: [cloudfront-update]    

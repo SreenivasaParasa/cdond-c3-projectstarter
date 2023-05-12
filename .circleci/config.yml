@@ -35,12 +35,11 @@ commands:
           name: Reverting migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure "https://kvdb.io/FEE7JyKAyonGF3qh5wj98X/migration_<<parameters.workflow_id>>" -H "X-Api-Key: ${THISDB_API_KEY}")
-            if (($SUCCESS == 1)); then
+        
               cd backend
               npm install
               npm run migrations:revert
-            fi
+            
   
 jobs:
   build-frontend:
